@@ -1,16 +1,18 @@
 import math
 import numpy as np
 import pandas as pd
-# from PyPDF2 import PdfFileReader
+from PyPDF2 import PdfFileReader, PdfFileWriter
 import os
 from docx import Document
 from docx.shared import Pt
+from docx2pdf import convert
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 import pytesseract as pt
-# from PIL import Image
+from PIL import Image
 from pdf2image import convert_from_path
 import re
+import cv2
 import shutil
 pt.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
@@ -27,6 +29,77 @@ scanned_file_log_df = pd.read_excel(os.path.join(root, 'reference_docs/2022_02_0
 col_heads = pd.read_excel(os.path.join(root, 'reference_docs/2022_02_09_Data_digitzation_scanned_files_dk.xlsx'),
                           sheet_name='col_heads')
 ## adding qr code
+
+def add_png_to_doc_convert_to_pdf(qr_code, qr_code_folder_path, tmp_folder):
+    qr_code_path = os.path.join(qr_code_folder_path, qr_code)
+    doc = Document()
+    doc.add_picture(qr_code_path)
+    last_paragraph = doc.paragraphs[-1]
+    last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    doc_path = os.path.join(tmp_folder, re.sub('.png', '.docx', str(qr_code)))
+    doc.save(doc_path)
+    pdf_path = os.path.join(tmp_folder, re.sub('.png', '.pdf', str(qr_code)))
+    convert(doc_path, pdf_path)
+
+def read_qr_code_data(qr_path):
+    qr_img = cv2.imread(qr_path)
+    detect = cv2.QRCodeDetector()
+    value, points, qr_code = detect.detectAndDecode(qr_img)
+    return value
+
+def add_read_qr_code_doc_to_pdf(qr_code, qr_code_folder_path, tmp_folder):
+    qr_code_path = os.path.join(qr_code_folder_path, qr_code)
+    doc = Document()
+    doc.add_picture(qr_code_path)
+    last_paragraph = doc.paragraphs[-1]
+    last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    doc_path = os.path.join(tmp_folder, re.sub('.png', '.docx', str(qr_code)))
+    text = doc.add_paragraph()
+    qr_info = read_qr_code_data(qr_code_path)
+    qr_info = text.add_run(qr_info)
+    qr_info.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+    qr_info.bold = True
+    qr_info.font.size = Pt(28)
+    qr_info.font.name = 'Arial Black'
+    doc.save(doc_path)
+    pdf_path = os.path.join(tmp_folder, re.sub('.png', '.pdf', str(qr_code)))
+    convert(doc_path, pdf_path)
+
+def create_dummy_files(qr_folder_path, tmp_path):
+    files = os.listdir(qr_folder_path)
+    for file in files:
+        qr_code = file + '_Patient File Data.png'
+        add_png_to_doc_convert_to_pdf(qr_code, os.path.join(qr_folder_path, file), tmp_path)
+
+def convert_qr_png_to_pdf(qr_code, qr_code_folder_path):
+    qr_code_path = os.path.join(qr_code_folder_path, qr_code)
+    qr_code_img = Image.open(qr_code_path)
+    qr_pdf = qr_code_img.convert('RGB')
+    qr_pdf_name = re.sub('.png', '.pdf', str(qr_code))
+    qr_pdf_path = os.path.join(qr_code_folder_path, qr_pdf_name)
+    qr_pdf.save(qr_pdf_path)
+    return qr_pdf_path
+
+def add_pdf_to_pdf(file_number, scanned_file_path, qr_pdf_path, added_qr_code_folder):
+    # tmp_folder = self.qr_code.create_tmp_folder_for_data_type(data_type='splitted_files')
+    # splitted_file_path = os.path.join(tmp_folder, str(file_number))
+    # if not os.path.isdir(splitted_file_path):
+    #     os.mkdir(splitted_file_path)
+    # scanned_file_name = str(file_number) + '.pdf'
+    scanned_file = PdfFileReader(scanned_file_path)
+    qr_pdf = PdfFileReader(qr_pdf_path)
+    # page_range = scanned_file.getNumPages()
+    pdf_writer = PdfFileWriter()
+    for page_num in range(qr_pdf.numPages):
+        page = qr_pdf.getPage(page_num)
+        pdf_writer.addPage(page)
+    for page_num in range(scanned_file.numPages):
+        page = scanned_file.getPage(page_num)
+        pdf_writer.addPage(page)
+    file_name = str(file_number) + '.pdf'
+    added_qr_code_pdf = open(os.path.join(added_qr_code_folder, file_name), 'wb')
+    pdf_writer.write(added_qr_code_pdf)
+    print("qr code added")
 
 def add_qr_code_id_data(qr_code_folder_path, master_list, coded_data):
     qr_codes = os.listdir(qr_code_folder_path)

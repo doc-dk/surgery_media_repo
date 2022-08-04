@@ -168,6 +168,20 @@ def split_pdf_to_pages(file_number, scanned_files_path, splitted_file_path):
             i += 1
     print("file number: ", file_number + " split")
 
+def split_pdf_by_pages(file_number, scanned_files_path, splitted_file_path):
+    pdf_file_name = str(file_number) + '.pdf'
+    scanned_file = PdfFileReader(os.path.join(scanned_files_path, pdf_file_name))
+    page_range = scanned_file.getNumPages()
+    for i in range(page_range):
+        page = scanned_file.getPage(i)
+        page_no = i + 1
+        splitted_file = str(file_number) + '_' + str(page_no) + '.pdf'
+        pdf_writer = PdfFileWriter()
+        pdf_writer.addPage(page)
+        with open(os.path.join(splitted_file_path, splitted_file), 'wb') as out:
+            pdf_writer.write(out)
+    print("file number: ", file_number + " splitted")
+
 def get_image_no(file_number, file_images_lst):
     file_images_no_lst = []
     for file_image in file_images_lst:

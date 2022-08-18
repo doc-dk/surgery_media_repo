@@ -85,4 +85,8 @@ def rename_file_from_tmp(sx_media_folder_path, tag, tmp_folder, destination_ftp_
 
 rename_file_from_tmp(sx_media_folder_path=sx_media_folder_path, tag='abc', tmp_folder=tmp_folder, destination_ftp_folder=destination_ftp_folder)
 
+import re
+import pyqrcode
+import os
+
 

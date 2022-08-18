@@ -3,6 +3,7 @@ from PIL import Image
 import fitz
 import os
 import cv2
+import pyqrcode
 
 scanned_file_path = 'D:/Shweta/data_digitization/adding_qr_code_in_pdf/path_reports/surgery_histopah/98_19/prem_sharma_2019_05_01_radical.pdf'
 qr_path = 'D:/Shweta/data_digitization/adding_qr_code_in_pdf/path_reports/qr_codes/98_19_Surgery Pathology.png'
@@ -52,8 +53,18 @@ qr_code = 'D:/Shweta/data_digitization/adding_qr_code_in_pdf/qr_on_the_first_pag
 # first_page.insert_image(image_rectangle, filename=qr_code)
 # file_handle.save(output_file)
 
+def make_qr_code(file_number, id_data, qr_dir):
+    file_number_str = file_number.replace("/", "_")
+    # qr_code_dat = str(file_number_str) + '_' + '_'.join(str(id_text) for id_text in (id_dat[0:1] + folder))
+    qr_code_lst = [file_number_str] + id_data
+    qr_code_dat = ' '.join(str(id_text) for id_text in qr_code_lst)
+    qr_img = pyqrcode.create(qr_code_dat)
+    qr_img_path = os.path.join(qr_dir, 'qr_img.png')
+    qr_img.png((qr_img_path), scale=4)
+    return qr_img_path, qr_code_lst
+
 def add_the_qr_code_at_top(input_pdf_path, qr_path, output_pdf_path):
-    image_rectangle = fitz.Rect(1, 2, 101, 102)
+    image_rectangle = fitz.Rect(10, 20, 110, 120)
     # image_rectangle = fitz.Rect(450,20,550,120)
     file_handle = fitz.open(input_pdf_path)
     first_page = file_handle[0]

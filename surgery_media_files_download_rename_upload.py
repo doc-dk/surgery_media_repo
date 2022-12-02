@@ -71,7 +71,7 @@ class SurgeryMediaManagement():
     #     i = 1
     #     for file_name in file_names:
     #         # get extension as str after first '.' from end of file_name
-    #         ext = file_name[-4:]
+    #         ext = file_name[-4:]ta
     #         # tmp_file_path = self.download_file_from_ftp(file_name=file_name)  ## tmp_file_path is not usefull
     #         new_file_name = self.tag + '_' + str(i) + ext
     #         # rename file here
@@ -80,7 +80,9 @@ class SurgeryMediaManagement():
 
     def get_check_sum(self, test):
 
-def update_repo(tag):
+def update_repo(tag, ftp_user_name, ftp_password, media_list_df):
+    
+    
     smm = SurgeryMediaManagement(ftp_user_name='Shweta',
                                  ftp_password='Shweta#123',
                                  source_path='/Prashanti Cancer Care/tmp_surgery_media_sk/12sep18 pre op & Sx',
@@ -101,3 +103,13 @@ def update_repo(tag):
     smm.delete_tmp_folder()
 
     #write to db table that error/success log
+
+
+if __name__ == '__main__':
+    import pandas as pd
+    tag = input('tag: ')
+    ftp_user_name = input('ftp_user_name')
+    ftp_password = input('ftp_password: ') 
+    media_list_file = input('media_list_file: ')
+    media_list_df = pd.read_excel('media_list_file')
+    update_repo(tag, ftp_user_name, ftp_password, media_list_df)

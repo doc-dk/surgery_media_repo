@@ -79,28 +79,42 @@ class SurgeryMediaManagement():
     #         i+=1
 
     def get_check_sum(self, test):
+        return 'tbd'
 
-def update_repo(tag, ftp_user_name, ftp_password, media_list_df):
-    
-    
-    smm = SurgeryMediaManagement(ftp_user_name='Shweta',
-                                 ftp_password='Shweta#123',
-                                 source_path='/Prashanti Cancer Care/tmp_surgery_media_sk/12sep18 pre op & Sx',
-                                 destination_path='/research_database/surgery media repo/tmp_sk/trial_v3')
+class BatchCreateRepo:
 
-    smm.create_tmp_folder()
-    try:
-        file_names = smm.login_ftp_old()
-        for index, file_name in enumerate(file_names):
-            print(file_name)
-            smm.download_file_from_ftp(file_name=file_name)
-            ext = smm.get_file_extension(file_name)
-            new_name = tag + "_" + str(index+1) + ext
-            smm.rename_file(file_name, tag= new_name)
-            smm.upload_file_on_ftp(new_name, tag= new_name)
-    except ftplib.all_errors as e:
-        print('FTP fail! ', e)
-    smm.delete_tmp_folder()
+    def __init__ (self, ftp_user_name, ftp_password, batch_media_list):
+        self.ftp_user_name = ftp_user_name
+        self.ftp_password = ftp_password
+        self.batch_media_list = batch_media_list
+
+
+    def create_media_list(self):
+        media_list = pd.read_excel(self.batch_media_list)
+        return media_list            
+
+    def update_repo(self, status_df):
+        source_path = tag[source_path]
+        destination_path = 'research_database/surgery_media_repo/trial'     
+        smm = SurgeryMediaManagement(self.ftp_user_name,
+                                    self.ftp_password,
+                                    source_path, destination_path)
+        smm.create_tmp_folder()
+        tag = 'take values from batch_media_list'
+        try:
+            file_names = smm.login_ftp_old()
+            for index, file_name in enumerate(file_names):
+                print(file_name)
+                smm.download_file_from_ftp(file_name=file_name)
+                ext = smm.get_file_extension(file_name)
+                new_name = tag + "_" + str(index+1) + ext
+                smm.rename_file(file_name, tag= new_name)
+                smm.upload_file_on_ftp(new_name, tag= new_name)
+        except ftplib.all_errors as e:
+            df = dict(file_name=file_name, source_path=source_path, new_name=new_name, status='ftp_failed')
+            status_df.append(dict(df))
+            print('FTP fail! ', e)
+        smm.delete_tmp_folder()
 
     #write to db table that error/success log
 

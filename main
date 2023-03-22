@@ -1,0 +1,124 @@
+# create flask GUI to search, display and save data
+
+from flask.globals import request, app
+from flask.templating import render_template
+from flask import Flask, render_template, request, redirect
+from Flask_SQLAlchemy import SQLAlchemy
+from datetime import datetime
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import func, distinct, and_, or_, update, delete, insert, select, \
+                       text, case, cast, desc, asc, distinct, func, join,\
+                       outerjoin, union, union_all, exists, extract
+
+
+app = Flask(__name__)
+app.config['192.168.1.5/research_database/db/pccm_db.db'] = 'sqlite:///test.db'
+db = SQLAlchemy(app)
+db = create_engine('sqlite:///test.db')
+Base = declarative_base()
+
+
+class Media(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    tag = db.Column(db.String(200), nullable=False)
+    source_path = db.Column(db.String(200), nullable=False)
+    destination_path = db.Column(db.String(200), nullable=False)
+    check_sum = db.Column(db.String(200), nullable=False)
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return '<Media %r>' % self.id
+
+@app.route('/', methods=['POST', 'GET'])
+def index():
+    if request.method == 'POST':
+        tag = request.form['tag']
+        source_path = request.form['source_path']
+        destination_path = request.form['destination_path']
+        check_sum = request.form['check_sum']
+        new_media = Media(tag=tag, source_path=source_path, destination_path=destination_path, check_sum=check_sum)
+
+        try:
+            db.session.add(new_media)
+            db.session.commit()
+            return redirect('/')
+        except:
+            return 'There was an issue adding your media'
+
+    else:
+        media = Media.query.order_by(Media.date_created).all()
+        return render_template('index.html', media=media)
+
+# create a GUI to delete the data
+@app.route('/delete/<int:id>')
+def delete(id):
+    media_to_delete = Media.query.get_or_404(id) # get the media to delete
+
+    try:
+        db.session.delete(media_to_delete)
+        db.session.commit()
+        return redirect('/')
+    except:
+        return 'There was a problem deleting that media'
+
+
+# create a GUI to update the data
+@app.route('/update/<int:id>', methods=['GET', 'POST'])# get the media to update
+def update(id):
+    media = Media.query.get_or_404(id)
+
+    if request.method == 'POST':
+        media.tag = request.form['tag']
+        media.source_path = request.form['source_path']
+        media.destination_path = request.form['destination_path']
+        media.check_sum = request.form['check_sum']
+
+        try:
+            db.session.commit()
+            return redirect('/')
+        except:
+            return 'There was an issue updating your media'
+
+    else:
+        return render_template('update.html', media=media)
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
+
+
+# connect to sqlite db on server using sqlalchemy
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import func, distinct, and_, or_, update, delete, insert, select,\
+                        text, case, cast, desc, asc, distinct, func, join,\
+                            outerjoin, union, union_all, exists, extract
+
+engine = create_engine('sqlite:///pccm_db.db')
+Base = declarative_base()
+
+class Media(Base):
+    __tablename__ = 'media'
+    id = Column(Integer, primary_key=True)
+    tag = Column(String(200), nullable=False)
+    source_path = Column(String(200), nullable=False)
+    destination_path = Column(String(200), nullable=False)
+    check_sum = Column(String(200), nullable=False)
+    date_created = Column(DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return '<Media %r>' % self.id
+
+Base.metadata.create_all(engine)
+
+
+
+        
+
+        

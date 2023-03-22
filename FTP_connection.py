@@ -1,21 +1,21 @@
 from ftplib import FTP
 
-## 1.5
-ftp = FTP('192.168.1.5')
-ftp.login(user='Shweta', passwd='Shweta#123')
-ftp.dir()
+# ## 1.5
+# ftp = FTP('192.168.1.5')
+# ftp.login(user='Shweta', passwd='Shweta#123')
+# ftp.dir()
 
-## 1.4
-ftp = FTP('192.168.1.4')
-ftp.login(user='Shweta', passwd='Shweta#123')
-ftp.dir()
+# ## 1.4
+# ftp = FTP('192.168.1.4')
+# ftp.login(user='Shweta', passwd='Shweta#123')
+# ftp.dir()
 
-# ftp.cwd('/research_database/surgery media repo/12sep18 pre op & Sx')
-path = '/research_database/surgery media repo/12sep18 pre op & Sx/test'
-dest = 'D:/Shweta/Surgery/surgery_media/tmp/'
-file_name = 'IMG_1998.jpg'
-ftp.cwd(path)
-ftp.retrbinary("RETR " + file_name, open(dest + file_name, 'wb').write)
+# # ftp.cwd('/research_database/surgery media repo/12sep18 pre op & Sx')
+# path = '/research_database/surgery media repo/12sep18 pre op & Sx/test'
+# dest = 'D:/Shweta/Surgery/surgery_media/tmp/'
+# file_name = 'IMG_1998.jpg'
+# ftp.cwd(path)
+# ftp.retrbinary("RETR " + file_name, open(dest + file_name, 'wb').write)
 
 def login_ftp(port, user, passwd):
     ftp = FTP(port)
@@ -47,16 +47,16 @@ def upload_file_on_ftp(port='192.168.1.5', user='Shweta', passwd='Shweta#123', s
 
 ## renaming the file from tmp
 
-def list_dirs_from_folder(port='192.168.1.4', user='Shweta', passwd='Shweta#123', sx_media_folder_path='tmp'):
-    ftp = FTP(port)
-    ftp.login(user, passwd)
-    ftp.cwd(sx_media_folder_path)
-    file_names = ftp.nlst()  ## it will store all available file_names in the list of python
+# def list_dirs_from_folder(port='192.168.1.4', user='Shweta', passwd='Shweta#123', sx_media_folder_path='tmp'):
+#     ftp = FTP(port)
+#     ftp.login(user, passwd)
+#     ftp.cwd(sx_media_folder_path)
+#     file_names = ftp.nlst()  ## it will store all available file_names in the list of python
     return file_names
 
-sx_media_folder_path = '/Prashanti Cancer Care/tmp_surgery_media_sk/12sep18 pre op & Sx'
-tmp_folder = 'D:/Shweta/Surgery/surgery_media/tmp/trial_tmp/'
-destination_ftp_folder = '/research_database/surgery media repo/tmp_sk/trial/'
+# sx_media_folder_path = '/Prashanti Cancer Care/tmp_surgery_media_sk/12sep18 pre op & Sx'
+# tmp_folder = 'D:/Shweta/Surgery/surgery_media/tmp/trial_tmp/'
+# destination_ftp_folder = '/research_database/surgery media repo/tmp_sk/trial/'
 
 def rename_file_from_tmp(sx_media_folder_path, tag, tmp_folder, destination_ftp_folder):
     file_names = list_dirs_from_folder(sx_media_folder_path=sx_media_folder_path)
